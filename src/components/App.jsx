@@ -31,6 +31,7 @@ export default function App() {
       contact.name.toLowerCase().includes(normalizedFilter)
     );
   };
+  console.log(contacts);
 
   return (
     <>
