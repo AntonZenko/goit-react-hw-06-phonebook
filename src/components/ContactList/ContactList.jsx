@@ -1,17 +1,39 @@
-import PropTypes from 'prop-types';
 import ContactListItem from 'components/ContactListItem';
 import { List, Message } from './ContactList.styled';
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
-function ContactList({ visibleContacts, deleteContact }) {
+import { useSelector, useDispatch } from 'react-redux';
+import { deleteContact, getContacts, getFilter } from '../redux/contactSlice';
+
+function ContactList() {
+  const contactsInState = useSelector(getContacts);
+  const filter = useSelector(getFilter);
+  const dispatch = useDispatch();
+
+  function visibleContacts() {
+    const normalizedFilter = filter.toLowerCase();
+    return filter
+      ? contactsInState.filter(contact =>
+          contact.name.toLowerCase().includes(normalizedFilter)
+        )
+      : contactsInState;
+  }
+  const contacts = visibleContacts();
+
   return (
     <List>
-      {visibleContacts.length ? (
-        visibleContacts.map(({ name, number, id }) => (
+      {contacts.length ? (
+        contacts.map(({ name, number, id }) => (
           <ContactListItem
             name={name}
             number={number}
             key={id}
-            handleClick={() => deleteContact(id, name)}
+            handleClick={() => {
+              dispatch(deleteContact(id, name));
+              Notify.success(`${name} deleted from your phonebook`, {
+                timeout: 2000,
+              });
+            }}
           />
         ))
       ) : (
@@ -22,14 +44,3 @@ function ContactList({ visibleContacts, deleteContact }) {
 }
 
 export default ContactList;
-
-ContactList.propTypes = {
-  visibleContacts: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-    })
-  ).isRequired,
-  deleteContact: PropTypes.func.isRequired,
-};

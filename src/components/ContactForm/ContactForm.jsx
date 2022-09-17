@@ -1,10 +1,14 @@
-import PropTypes from 'prop-types';
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { addContact } from '../redux/contactSlice';
 
 import { nanoid } from 'nanoid';
+// import { Notify } from 'notiflix/build/notiflix-notify-aio';
+
 import { Form, Input, Button, Label } from './ContactForm.styled';
 
-export default function ContactForm({ addContact, contacts }) {
+export default function ContactForm() {
+  const dispatch = useDispatch();
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
@@ -30,11 +34,15 @@ export default function ContactForm({ addContact, contacts }) {
   const handleSubmit = event => {
     event.preventDefault();
 
-    addContact({
-      id: nanoid(),
-      name: name,
-      number: number,
-    });
+    dispatch(
+      addContact({
+        id: nanoid(),
+        name,
+        number,
+      })
+    );
+
+    // Notify.warning(`${name} is already in contacts`, { timeout: 2000 });
 
     reset();
   };
@@ -72,14 +80,3 @@ export default function ContactForm({ addContact, contacts }) {
     </Form>
   );
 }
-
-ContactForm.propTypes = {
-  addContact: PropTypes.func.isRequired,
-  contacts: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-    })
-  ).isRequired,
-};
